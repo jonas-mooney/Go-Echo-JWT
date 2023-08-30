@@ -2,23 +2,22 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	// "net/http"
 	"net/smtp"
 	"os"
 
 	"github.com/joho/godotenv"
-
-	"github.com/labstack/echo/v4"
+	// "github.com/labstack/echo/v4"
 )
 
-func SendMailHandler(c echo.Context) error {
-	Send()
-	return c.JSON(http.StatusOK, echo.Map{
-		"Mail Status": "Email sent",
-	})
-}
+// func SendMailHandler(c echo.Context) error {
+// 	Send()
+// 	return c.JSON(http.StatusOK, echo.Map{
+// 		"Mail Status": "Email sent",
+// 	})
+// }
 
-func Send() {
+func SendSignupEmail(username, email string) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -27,19 +26,19 @@ func Send() {
 	googleKey := os.Getenv("GOOGLE_SMTP")
 	auth := smtp.PlainAuth(
 		"",
-		"placeholder@gma.com",
+		"jonasmooney2@gmail.com",
 		googleKey,
 		"smtp.gmail.com",
 	)
 
-	msg := "Subject: Cheese recipes\rEmail body also about cheese recipes"
+	msg := "Subject: Echo-One-Signup\rCongrats " + username + "! You successfully signed up to Echo-One"
 
 	err = smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"placeholder@gma.com",           // from
-		[]string{"placeholder@gma.com"}, // slice of addresses to send to
-		[]byte(msg),                     // message sent as byte array
+		"jonasmooney2@gmail.com", // from
+		[]string{email},          // slice of addresses to send to
+		[]byte(msg),              // message sent as byte array
 	)
 	if err != nil {
 		fmt.Println(err)

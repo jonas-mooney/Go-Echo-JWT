@@ -59,9 +59,10 @@ func SignUp(c echo.Context) error {
 
 	_, err = db.Exec("INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)", uuid, username, email, hashedString)
 	if err != nil {
-		// log.Fatal(err)
 		fmt.Println("Error occurred:", err)
 	}
+
+	SendSignupEmail(username, email)
 
 	claims := CustomClaims{
 		username,
@@ -73,7 +74,8 @@ func SignUp(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	mySigningKey := []byte("h6t5rd3s4a12h")
+	keyFromEnv := os.Getenv("JWT_SIGNING_KEY")
+	mySigningKey := []byte(keyFromEnv)
 
 	ss, err := token.SignedString([]byte(mySigningKey))
 	if err != nil {
