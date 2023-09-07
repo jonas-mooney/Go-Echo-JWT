@@ -11,15 +11,13 @@ import (
 
 	"echo-one/models"
 
-	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 )
 
-func SignUp(c echo.Context) error {
+func SignUp(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -33,9 +31,9 @@ func SignUp(c echo.Context) error {
 	defer db.Close()
 
 	uuid := uuid.New()
-	username := c.FormValue("username")
-	email := c.FormValue("email")
-	password := c.FormValue("password")
+	username := r.FormValue("username")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println("Hashing error")
@@ -51,40 +49,30 @@ func SignUp(c echo.Context) error {
 		} else {
 			fmt.Println("Error occurred:", err)
 		}
-	} else if userCheck.Username == username {
-		return c.JSON(http.StatusConflict, "That username is taken")
-	} else if userCheck.Email == email {
-		return c.JSON(http.StatusConflict, "That email is taken")
+	} else if userCheck.Username == username || userCheck.Email == email {
+		w.WriteHeader(400)
+		w.Write([]byte("Username or email unavailable"))
+		return
 	}
 
 	_, err = db.Exec("INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)", uuid, username, email, hashedString)
 	if err != nil {
 		fmt.Println("Error occurred:", err)
+		w.WriteHeader(500)
+		w.Write([]byte("Error creating account"))
 	}
 
 	SendSignupEmail(username, email)
-
-	claims := CustomClaims{
-		username,
-		email,
-		jwt.StandardClaims{
-			ExpiresAt: jwt.NewTime(15000),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	keyFromEnv := os.Getenv("JWT_SIGNING_KEY")
-	mySigningKey := []byte(keyFromEnv)
-
-	ss, err := token.SignedString([]byte(mySigningKey))
+	nameTokenJSON, err := CreateJWT(username)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		fmt.Println("Error occurred:", err)
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"name":  username,
-		"token": ss,
-	})
+	w.Header().Set("Content-Type", "application/json")
+
+	_, err = w.Write(nameTokenJSON)
+	if err != nil {
+		http.Error(w, "Error writing response", http.StatusInternalServerError)
+		return
+	}
 }

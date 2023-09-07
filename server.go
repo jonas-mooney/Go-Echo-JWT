@@ -1,29 +1,26 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go/v4"
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/mux"
+
 	_ "github.com/lib/pq"
 )
 
-type CustomClaims struct {
-	Username string `json:"name"`
-	Email    string
-	jwt.StandardClaims
+func signUpHandler(w http.ResponseWriter, r *http.Request) {
+	SignUp(w, r)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	Login(w, r)
 }
 
 func main() {
-	e := echo.New()
+	r := mux.NewRouter()
+	r.HandleFunc("/signup", signUpHandler)
+	r.HandleFunc("/login", loginHandler)
 
-	e.POST("/signup", SignUp)
-	e.POST("/login", Login)
-	// e.POST("/sendmail", SendMailHandler)
-
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-
-	e.Logger.Fatal(e.Start("localhost:1323"))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

@@ -9,15 +9,14 @@ import (
 	"database/sql"
 	"echo-one/models"
 
-	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/joho/godotenv"
+
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 )
 
-func Login(c echo.Context) error {
+func Login(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -30,17 +29,16 @@ func Login(c echo.Context) error {
 	}
 	defer db.Close()
 
-	// token := c.Request().Header.Get("Authorization")
-	username := c.FormValue("username")
-	email := c.FormValue("email")
-	password := c.FormValue("password")
+	username := r.FormValue("username")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
 
 	var user models.User
 
 	err = db.QueryRow("SELECT username, email, password FROM users WHERE username = $1 OR email = $2", username, email).Scan(&user.Username, &user.Email, &user.Password)
 	if err != nil {
 		fmt.Println("Error occurred:", err)
-		return c.JSON(http.StatusInternalServerError, "An error occurred")
+		w.Write([]byte("An error occured"))
 	}
 
 	if err == sql.ErrNoRows {
@@ -59,27 +57,7 @@ func Login(c echo.Context) error {
 		fmt.Println("Password doesn't match")
 	}
 
-	claims := CustomClaims{
-		username,
-		email,
-		jwt.StandardClaims{
-			ExpiresAt: jwt.NewTime(15000),
-		},
-	}
+	w.Header().Set("Content-Type", "application/json")
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	mySigningKey := []byte("h6t5rd3s4a12h")
-
-	ss, err := token.SignedString([]byte(mySigningKey))
-	if err != nil {
-		println(err)
-		return err
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"name":  username,
-		"token": ss,
-	})
-
+	w.Write([]byte("Login function ran"))
 }

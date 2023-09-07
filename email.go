@@ -2,20 +2,11 @@ package main
 
 import (
 	"fmt"
-	// "net/http"
 	"net/smtp"
 	"os"
 
 	"github.com/joho/godotenv"
-	// "github.com/labstack/echo/v4"
 )
-
-// func SendMailHandler(c echo.Context) error {
-// 	Send()
-// 	return c.JSON(http.StatusOK, echo.Map{
-// 		"Mail Status": "Email sent",
-// 	})
-// }
 
 func SendSignupEmail(username, email string) {
 	err := godotenv.Load()
@@ -24,6 +15,7 @@ func SendSignupEmail(username, email string) {
 	}
 
 	googleKey := os.Getenv("GOOGLE_SMTP")
+
 	auth := smtp.PlainAuth(
 		"",
 		"jonasmooney2@gmail.com",
