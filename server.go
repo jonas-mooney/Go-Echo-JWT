@@ -21,6 +21,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/signup", signUpHandler)
 	r.HandleFunc("/login", loginHandler)
+	r.Use(JWT_auth_middleware)
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

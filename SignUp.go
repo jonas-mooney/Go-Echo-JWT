@@ -60,6 +60,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error occurred:", err)
 		w.WriteHeader(500)
 		w.Write([]byte("Error creating account"))
+		return
 	}
 
 	SendSignupEmail(username, email)

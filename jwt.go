@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -47,4 +48,11 @@ func CreateJWT(username string) ([]byte, error) {
 	}
 
 	return jsonData, nil
+}
+
+func JWT_auth_middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("JWT auth middleware function ran")
+		next.ServeHTTP(w, r)
+	})
 }
