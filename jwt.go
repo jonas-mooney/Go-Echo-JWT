@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 )
 
 type CustomClaims struct {
@@ -53,6 +54,24 @@ func CreateJWT(username string) ([]byte, error) {
 func JWT_auth_middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("JWT auth middleware function ran")
+		tokenString := r.Header.Get("Token")
+
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Println("Error loading .env file")
+		}
+		jwt_key := os.Getenv("JWT_SIGNING_KEY")
+
+		token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwt_key), nil
+		})
+
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+			fmt.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
+		} else {
+			fmt.Println(err)
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
