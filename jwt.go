@@ -22,6 +22,10 @@ type ResponseData struct {
 }
 
 func CreateJWT(username string) ([]byte, error) {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	jwt_key := os.Getenv("JWT_SIGNING_KEY")
 	keyByte := []byte(jwt_key)
 
@@ -62,14 +66,19 @@ func JWT_auth_middleware(next http.Handler) http.Handler {
 		}
 		jwt_key := os.Getenv("JWT_SIGNING_KEY")
 
-		token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwt_key), nil
-		})
+		// fmt.Println(tokenString)
+		// fmt.Println(jwt_key)
 
-		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-			fmt.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
-		} else {
-			fmt.Println(err)
+		if tokenString != "" {
+			token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+				return []byte(jwt_key), nil
+			})
+
+			if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+				fmt.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
+			} else {
+				fmt.Println(err)
+			}
 		}
 
 		next.ServeHTTP(w, r)

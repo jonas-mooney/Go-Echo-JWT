@@ -9,6 +9,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func signUpHandler(w http.ResponseWriter, r *http.Request) {
 	SignUp(w, r)
 }
@@ -19,6 +23,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
+	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/signup", signUpHandler)
 	r.HandleFunc("/login", loginHandler)
 	r.Use(JWT_auth_middleware)
