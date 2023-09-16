@@ -26,6 +26,7 @@ func CreateJWT(username string) ([]byte, error) {
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}
+
 	jwt_key := os.Getenv("JWT_SIGNING_KEY")
 	keyByte := []byte(jwt_key)
 

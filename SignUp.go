@@ -17,7 +17,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func SignUp(w http.ResponseWriter, r *http.Request) {
+func SignUp(w http.ResponseWriter, r *http.Request) error {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -52,15 +52,15 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	} else if userCheck.Username == username || userCheck.Email == email {
 		w.WriteHeader(400)
 		w.Write([]byte("Username or email unavailable"))
-		return
+		return err
 	}
 
 	_, err = db.Exec("INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)", uuid, username, email, hashedString)
 	if err != nil {
-		fmt.Println("Error occurred:", err)
+		fmt.Println("Error occurred in signup:", err)
 		w.WriteHeader(500)
 		w.Write([]byte("Error creating account"))
-		return
+		return err
 	}
 
 	SendSignupEmail(username, email)
@@ -74,6 +74,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(nameTokenJSON)
 	if err != nil {
 		http.Error(w, "Error writing response", http.StatusInternalServerError)
-		return
+		return err
 	}
+
+	return err
 }

@@ -18,7 +18,7 @@ func SendSignupEmail(username, email string) {
 
 	auth := smtp.PlainAuth(
 		"",
-		"jonasmooney2@gmail.com",
+		"jonasmoon23@gmail.com",
 		googleKey,
 		"smtp.gmail.com",
 	)
@@ -28,9 +28,9 @@ func SendSignupEmail(username, email string) {
 	err = smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"jonasmooney2@gmail.com", // from
-		[]string{email},          // slice of addresses to send to
-		[]byte(msg),              // message sent as byte array
+		"mrmonk@detective.com", // from
+		[]string{email},        // slice of addresses to send to
+		[]byte(msg),            // message sent as byte array
 	)
 	if err != nil {
 		fmt.Println(err)
