@@ -21,7 +21,10 @@ func signUpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	Login(w, r)
+	err := Login(w, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -29,7 +32,8 @@ func main() {
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/signup", signUpHandler)
 	r.HandleFunc("/login", loginHandler)
-	r.Use(JWT_auth_middleware)
+	// r.Use(JWT_auth_middleware)
 
+	log.Printf("Running on :8080")
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", r))
 }

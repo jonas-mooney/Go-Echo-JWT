@@ -16,7 +16,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) error {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -51,13 +51,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	passwordFromDB := user.Password
 	err = bcrypt.CompareHashAndPassword([]byte(passwordFromDB), []byte(password))
-	if err == nil {
-		fmt.Println("Password matches")
-	} else {
-		fmt.Println("Password doesn't match")
+	if err != nil {
+		w.WriteHeader(401)
+		w.Write([]byte("Incorrect Password"))
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
 	w.Write([]byte("Login function ran"))
+
+	return err
 }
+
+// add jwt creation for login
