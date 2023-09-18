@@ -74,7 +74,3 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 
 	return err
 }
-
-// add jwt creation for login
-// login logic updated to work with email OR username alone
-// ._.

@@ -9,8 +9,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-
+func authHandler(w http.ResponseWriter, r *http.Request) {
+	err := JWT_auth(w, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func signUpHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,10 +32,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/", HomeHandler)
+	r.HandleFunc("/auth", authHandler)
 	r.HandleFunc("/signup", signUpHandler)
 	r.HandleFunc("/login", loginHandler)
-	// r.Use(JWT_auth_middleware)
 
 	log.Printf("Running on :8080")
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", r))
