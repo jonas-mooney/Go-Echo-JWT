@@ -42,7 +42,9 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err == sql.ErrNoRows {
-		fmt.Println("Unique username & email passed")
+		w.WriteHeader(401)
+		w.Write([]byte("No account with this username and email"))
+		return nil
 	} else if user.Username == username {
 		fmt.Println("Username matches database")
 	} else if user.Email == email {
@@ -54,14 +56,25 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		w.WriteHeader(401)
 		w.Write([]byte("Incorrect Password"))
+		return nil
+	}
+
+	nameTokenJSON, err := CreateJWT(user.Username)
+	if err != nil {
+		fmt.Println("Error occurred:", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
-	w.Write([]byte("Login function ran"))
+	_, err = w.Write(nameTokenJSON)
+	if err != nil {
+		http.Error(w, "Error writing response", http.StatusInternalServerError)
+		return err
+	}
 
 	return err
 }
 
 // add jwt creation for login
+// login logic updated to work with email OR username alone
 // ._.
