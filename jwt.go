@@ -63,17 +63,29 @@ func JWT_auth(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	jwt_key := os.Getenv("JWT_SIGNING_KEY")
+
 	tokenString := r.Header.Get("Token")
+	if tokenString == "" {
+		w.WriteHeader(401)
+		w.Write([]byte("No jwt present"))
+		return err
+	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if err != nil {
+			return err, err // update
+		}
 		return []byte(jwt_key), nil
 	})
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		fmt.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
+		w.WriteHeader(200)
+		w.Write([]byte(claims.Username))
+		return nil
 	} else {
-		fmt.Println(err)
+		w.WriteHeader(401)
+		return err
 	}
-
-	return err
 }
+
+// test case where the user sends a token that contains a string not resembling a jwt
