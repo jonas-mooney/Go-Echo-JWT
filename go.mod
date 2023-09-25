@@ -11,3 +11,8 @@ require (
 )
 
 require github.com/golang-jwt/jwt/v5 v5.0.0
+
+require (
+	github.com/sendgrid/rest v2.6.9+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.13.0+incompatible // indirect
+)
