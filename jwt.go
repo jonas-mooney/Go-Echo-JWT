@@ -16,9 +16,14 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-type ResponseData struct {
+type TokenResponse struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
+}
+
+type ValidStatus struct {
+	Username      string `json:"username"`
+	Authenticated bool   `json:"authenticated"`
 }
 
 func CreateJWT(username string) ([]byte, error) {
@@ -43,7 +48,7 @@ func CreateJWT(username string) ([]byte, error) {
 		fmt.Println("error occured in jwt.go: ", err)
 	}
 
-	responseData := ResponseData{
+	responseData := TokenResponse{
 		Username: username,
 		Token:    ss,
 	}
@@ -79,8 +84,20 @@ func JWT_auth(w http.ResponseWriter, r *http.Request) error {
 	})
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+
+		responseData := ValidStatus{
+			Username:      claims.Username,
+			Authenticated: true,
+		}
+
+		jsonData, err := json.Marshal(responseData)
+		if err != nil {
+			return err
+		}
+
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
-		w.Write([]byte(claims.Username))
+		w.Write([]byte(jsonData))
 		return nil
 	} else {
 		w.WriteHeader(401)

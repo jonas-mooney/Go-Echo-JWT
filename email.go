@@ -25,7 +25,7 @@ func SendSignupEmail(username, email string) {
 	subject := "Echo-One-Signup"
 	to := mail.NewEmail(username, email)
 	plainTextContent := "and easy to do anywhere, even with Go"
-	htmlContent := "<h1>Congrats! Welcome to Echo One!</h1>"
+	htmlContent := "<h1>Congrats " + username + "! " + "Welcome to Echo One!</h1>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(apiKey)
 	response, err := client.Send(message)
