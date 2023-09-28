@@ -29,7 +29,7 @@ type ValidStatus struct {
 func CreateJWT(username string) ([]byte, error) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		return nil, fmt.Errorf("error loading .env file: %v", err)
 	}
 
 	jwt_key := os.Getenv("JWT_SIGNING_KEY")

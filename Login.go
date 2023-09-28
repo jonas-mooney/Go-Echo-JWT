@@ -37,18 +37,15 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 
 	err = db.QueryRow("SELECT username, email, password FROM users WHERE username = $1 OR email = $2", username, email).Scan(&user.Username, &user.Email, &user.Password)
 	if err != nil {
-		fmt.Println("Error occurred:", err)
-		w.Write([]byte("An error occured"))
-	}
-
-	if err == sql.ErrNoRows {
-		w.WriteHeader(401)
-		w.Write([]byte("No account with this username and email"))
-		return nil
-	} else if user.Username == username {
-		fmt.Println("Username matches database")
-	} else if user.Email == email {
-		fmt.Println("Email matches database")
+		if err == sql.ErrNoRows {
+			w.WriteHeader(401)
+			w.Write([]byte("No account with this username and email"))
+			return nil
+		} else if user.Username == username {
+			fmt.Println("Username matches database")
+		} else if user.Email == email {
+			fmt.Println("Email matches database")
+		}
 	}
 
 	passwordFromDB := user.Password
