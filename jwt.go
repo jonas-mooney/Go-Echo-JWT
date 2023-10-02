@@ -36,7 +36,7 @@ var cfg Config
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Printf("Error loading .env file: %v", err)
 	}
 
 	cfg.JWTSigningKey = os.Getenv("JWT_SIGNING_KEY")
@@ -56,7 +56,7 @@ func CreateJWT(username string) ([]byte, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(keyByte)
 	if err != nil {
-		fmt.Println("error occured in jwt.go: ", err)
+		log.Printf("Error signing token: %v", err)
 	}
 
 	responseData := TokenResponse{

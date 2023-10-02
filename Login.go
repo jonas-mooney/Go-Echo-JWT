@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,13 +18,13 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) error {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -42,9 +41,9 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 			w.Write([]byte("No account with this username and email"))
 			return nil
 		} else if user.Username == username {
-			fmt.Println("Username matches database")
+			log.Println("Username matches database")
 		} else if user.Email == email {
-			fmt.Println("Email matches database")
+			log.Println("Email matches database")
 		}
 	}
 
@@ -58,7 +57,7 @@ func Login(w http.ResponseWriter, r *http.Request) error {
 
 	nameTokenJSON, err := CreateJWT(user.Username)
 	if err != nil {
-		fmt.Println("Error occurred:", err)
+		log.Printf("Error occurred: %v", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
