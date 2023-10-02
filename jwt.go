@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -26,13 +27,23 @@ type ValidStatus struct {
 	Authenticated bool   `json:"authenticated"`
 }
 
-func CreateJWT(username string) ([]byte, error) {
+type Config struct {
+	JWTSigningKey string
+}
+
+var cfg Config
+
+func init() {
 	err := godotenv.Load()
 	if err != nil {
-		return nil, fmt.Errorf("error loading .env file: %v", err)
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	jwt_key := os.Getenv("JWT_SIGNING_KEY")
+	cfg.JWTSigningKey = os.Getenv("JWT_SIGNING_KEY")
+}
+
+func CreateJWT(username string) ([]byte, error) {
+	jwt_key := cfg.JWTSigningKey
 	keyByte := []byte(jwt_key)
 
 	claims := CustomClaims{
@@ -62,26 +73,27 @@ func CreateJWT(username string) ([]byte, error) {
 }
 
 func JWT_auth(w http.ResponseWriter, r *http.Request) error {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-
-	jwt_key := os.Getenv("JWT_SIGNING_KEY")
+	jwt_key := cfg.JWTSigningKey
 
 	tokenString := r.Header.Get("Token")
 	if tokenString == "" {
 		w.WriteHeader(401)
 		w.Write([]byte("No jwt present"))
-		return err
+		return nil
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if err != nil {
-			return err, err // update
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(jwt_key), nil
 	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
+		return nil
+	}
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 
@@ -104,5 +116,3 @@ func JWT_auth(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 }
-
-// test case where the user sends a token that contains a string not resembling a jwt
