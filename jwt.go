@@ -57,6 +57,7 @@ func CreateJWT(username string) ([]byte, error) {
 	ss, err := token.SignedString(keyByte)
 	if err != nil {
 		log.Printf("Error signing token: %v", err)
+		return nil, err
 	}
 
 	responseData := TokenResponse{
