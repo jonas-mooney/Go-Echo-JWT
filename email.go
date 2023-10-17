@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -14,7 +13,7 @@ import (
 func SendSignupEmail(username, email string) {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	fromUsername := os.Getenv("SENDGRID_FROM_USERNAME")
@@ -30,8 +29,8 @@ func SendSignupEmail(username, email string) {
 	client := sendgrid.NewSendClient(apiKey)
 	response, err := client.Send(message)
 	if err != nil {
-		log.Println(err)
-	} else {
-		fmt.Println(response.StatusCode, "Email sent successfully")
+		log.Println("Sendgrid signup email error: ", err)
+	} else if response.StatusCode != 202 {
+		log.Println("Sendgrid signup email status: ", response.StatusCode)
 	}
 }
