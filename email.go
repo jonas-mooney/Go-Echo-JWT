@@ -54,7 +54,7 @@ func SendSignupEmail(username, email string) {
 	} else if response.StatusCode != 202 {
 		log.Println("Sendgrid signup email status: ", response.StatusCode)
 	}
-}
+} //test
 
 /*
 Testing Environment:
