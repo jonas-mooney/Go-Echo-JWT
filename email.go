@@ -41,10 +41,6 @@ func SendSignupEmail(username, email string) {
 		log.Println("Error loading config: ", err)
 	}
 
-	// fromUsername := os.Getenv("SENDGRID_FROM_USERNAME")
-	// fromEmail := os.Getenv("SENDGRID_FROM_EMAIL")
-	// apiKey := os.Getenv("SENDGRID_API_KEY")
-
 	from := mail.NewEmail(cfg.SendGridFromUsername, cfg.SendGridFromEmail)
 	subject := "Echo-One-Signup"
 	to := mail.NewEmail(username, email)
