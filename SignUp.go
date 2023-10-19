@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 
 	"echo-one/models"
 
@@ -17,10 +17,10 @@ import (
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) error {
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Printf("Error loading .env file: %v", err)
+	// }
 
 	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
 	db, err := sql.Open("postgres", connStr)
@@ -62,7 +62,11 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	SendSignupEmail(username, email)
+	err = SendSignupEmail(username, email)
+	if err != nil {
+		return err
+	}
+
 	nameTokenJSON, err := CreateJWT(username)
 	if err != nil {
 		log.Printf("Error occurred: %v", err)

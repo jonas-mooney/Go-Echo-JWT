@@ -8,7 +8,7 @@ import (
 	"database/sql"
 	"echo-one/models"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -16,10 +16,10 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) error {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Println("Error loading .env file")
+	// }
 
 	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
 	db, err := sql.Open("postgres", connStr)

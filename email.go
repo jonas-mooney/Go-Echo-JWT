@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 type Configuration struct {
@@ -17,10 +17,10 @@ type Configuration struct {
 }
 
 func loadConfig() (Configuration, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Println("Error loading .env file")
+	// }
 
 	cfg := Configuration{
 		SendGridFromUsername: os.Getenv("SENDGRID_FROM_USERNAME"),
@@ -29,16 +29,16 @@ func loadConfig() (Configuration, error) {
 	}
 
 	if cfg.SendGridFromUsername == "" || cfg.SendGridFromEmail == "" || cfg.SendGridAPIKey == "" {
-		return Configuration{}, err
+		return Configuration{}, fmt.Errorf("error loading sendgrid config")
 	}
 
 	return cfg, nil
 }
 
-func SendSignupEmail(username, email string) {
+func SendSignupEmail(username, email string) error {
 	cfg, err := loadConfig()
 	if err != nil {
-		log.Println("Error loading config: ", err)
+		return err
 	}
 
 	from := mail.NewEmail(cfg.SendGridFromUsername, cfg.SendGridFromEmail)
@@ -54,7 +54,9 @@ func SendSignupEmail(username, email string) {
 	} else if response.StatusCode != 202 {
 		log.Println("Sendgrid signup email status: ", response.StatusCode)
 	}
-} //test
+
+	return nil
+}
 
 /*
 Testing Environment:
