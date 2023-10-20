@@ -58,7 +58,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		log.Printf("Error occurred in signup: %v", err)
 		w.WriteHeader(500)
-		w.Write([]byte("Error creating account"))
+		w.Write([]byte("Error creating account from signup.go"))
 		return err
 	}
 
