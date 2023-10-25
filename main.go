@@ -37,5 +37,6 @@ func main() {
 	r.HandleFunc("/login", loginHandler)
 
 	log.Printf("Running on :8080")
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", r))
+	// log.Fatal(http.ListenAndServe("127.0.0.1:8080", r))
 }
