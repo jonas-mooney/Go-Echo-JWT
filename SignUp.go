@@ -25,9 +25,15 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Printf("Error connecting to database: %v", err)
+		log.Println(err)
 	}
 	defer db.Close()
+
+	if connStr == "" {
+		w.WriteHeader(500)
+		w.Write([]byte("RAILWAY_PG_CONNECTION_STRING environment variable not set"))
+		return nil
+	}
 
 	uuid := uuid.New()
 	username := r.FormValue("username")
@@ -45,6 +51,13 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("Unique username & email passed")
+
+			/// just a test
+			// w.WriteHeader(200)
+			// w.Write([]byte("Success connecting and querying db"))
+			// return err
+			///
+
 		} else {
 			log.Printf("Error occurred: %v", err)
 		}
@@ -58,7 +71,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		log.Printf("Error occurred in signup: %v", err)
 		w.WriteHeader(500)
-		w.Write([]byte("Error creating account from signup.go"))
+		w.Write([]byte("Error creating account from signup.go 74"))
 		return err
 	}
 
