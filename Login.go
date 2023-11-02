@@ -12,14 +12,15 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) error {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Println("Error loading .env file")
-	// }
+func login(w http.ResponseWriter, r *http.Request) error {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
 
 	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
 	db, err := sql.Open("postgres", connStr)

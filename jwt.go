@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	// "github.com/joho/godotenv"
 )
 
@@ -34,10 +35,10 @@ type Config struct {
 var cfg Config
 
 func init() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Printf("Error loading .env file: %v", err)
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("Error loading .env file: %v", err)
+	}
 
 	cfg.JWTSigningKey = os.Getenv("JWT_SIGNING_KEY")
 }

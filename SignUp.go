@@ -6,32 +6,30 @@ import (
 	"net/http"
 	"os"
 
-	// "github.com/joho/godotenv"
-
 	"echo-one/models"
 
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/lib/pq"
 )
 
-func SignUp(w http.ResponseWriter, r *http.Request) error {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Printf("Error loading .env file: %v", err)
-	// }
+func signup(w http.ResponseWriter, r *http.Request) error {
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("Error loading .env file: %v", err)
+	}
 
-	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING")
+	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING1231231")
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 	defer db.Close()
 
 	if connStr == "" {
 		w.WriteHeader(500)
-		w.Write([]byte("RAILWAY_PG_CONNECTION_STRING environment variable not set"))
 		return nil
 	}
 
@@ -41,7 +39,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	password := r.FormValue("password")
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Printf("Error hashing password: %v", err)
+		log.Fatalf("Error hashing password: %v", err)
 	}
 	hashedString := string(hashedPassword)
 
@@ -49,20 +47,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 
 	err = db.QueryRow("SELECT username, email FROM users WHERE username = $1 OR email = $2", username, email).Scan(&userCheck.Username, &userCheck.Email)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("Unique username & email passed")
-
-			/// just a test
-			// w.WriteHeader(200)
-			// w.Write([]byte("Success connecting and querying db"))
-			// return err
-			///
-
-		} else {
+		if err != sql.ErrNoRows {
 			log.Printf("Error occurred: %v", err)
+			w.WriteHeader(500) // test
 		}
 	} else if userCheck.Username == username || userCheck.Email == email {
-		w.WriteHeader(400)
+		w.WriteHeader(400) // test
 		w.Write([]byte("Username or email unavailable"))
 		return err
 	}
@@ -71,7 +61,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		log.Printf("Error occurred in signup: %v", err)
 		w.WriteHeader(500)
-		w.Write([]byte("Error creating account from signup.go 74"))
+		w.Write([]byte("Error creating account from signup.go 74")) // fix and test
 		return err
 	}
 
