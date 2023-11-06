@@ -21,7 +21,7 @@ func signup(w http.ResponseWriter, r *http.Request) error {
 		log.Printf("Error loading .env file: %v", err)
 	}
 
-	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING1231231")
+	connStr := os.Getenv("RAILWAY_PG_CONNECTION_STRING123")
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalln(err)
@@ -29,8 +29,8 @@ func signup(w http.ResponseWriter, r *http.Request) error {
 	defer db.Close()
 
 	if connStr == "" {
-		w.WriteHeader(500)
-		return nil
+		httpErr := NewHTTPError(nil, 500, "Failed to connect to database")
+		handleError(w, httpErr)
 	}
 
 	uuid := uuid.New()
